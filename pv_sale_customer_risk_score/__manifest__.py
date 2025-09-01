@@ -3,6 +3,7 @@
     "name": "PV: Customer Risk Score for Sales",
     "version": "18.0.2.0",
     "category": "Sales/Accounting",
+    "images": ["static/description/banner.png"],
     "summary": "Customer risk KPIs + Debtors dashboard snapshot for pivot/grouping",
     "author": "PV-Odoo",
     "license": "LGPL-3",
