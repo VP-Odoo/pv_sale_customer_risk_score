@@ -1,0 +1,15 @@
+<odoo>
+  <record id="pv_view_order_form_risk" model="ir.ui.view">
+    <field name="name">pv.sale.order.form.risk</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <group string="Customer Risk">
+          <field name="partner_risk_level" readonly="1"/>
+          <field name="partner_risk_score" readonly="1"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

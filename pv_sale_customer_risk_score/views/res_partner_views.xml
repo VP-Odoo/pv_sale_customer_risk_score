@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend Partner Form: add Risk page -->
+
+    <record id="pv_view_partner_form_risk" model="ir.ui.view">
+        <field name="name">pv.res.partner.form.risk</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+
+            <!-- Add a Risk page at the end of the notebook -->
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Risk">
+                    <group>
+                        <group>
+                            <field name="risk_credit_util_pct" string="Credit Utilization %" readonly="1"/>
+                            <field name="risk_overdue_ratio" string="Overdue Ratio" readonly="1"/>
+                            <field name="risk_orders_90d" string="Orders in Window" readonly="1"/>
+                            <!-- FIX: use the real field name -->
+                            <field name="risk_activity_window_days" string="Activity Window (Days)" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="risk_score" string="Risk Score" readonly="1"/>
+                            <field name="risk_level" string="Risk Level" readonly="1"/>
+                            <field name="risk_last_recomputed" string="Risk Last Recomputed" readonly="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_recompute_risk"
+                                type="object"
+                                class="btn-primary"
+                                string="Recompute Risk"/>
+                    </footer>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

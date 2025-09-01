@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="pv_view_res_config_settings_risk" model="ir.ui.view">
+    <field name="name">pv.res.config.settings.view.form.risk</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <!-- add our block inside the Sales app section -->
+      <xpath expr="//app[@name='sale_management']" position="inside">
+        <block name="pv_risk_block" title="Customer Risk Score">
+
+          <!-- Activity window -->
+          <setting string="Activity Window (Days)"
+                   help="How many days to look back when counting confirmed/done sales orders for the risk indicator.">
+            <div class="oe_row mt8">
+              <label for="pv_risk_activity_window_days" class="o_light_label me-2"/>
+              <field name="pv_risk_activity_window_days" class="oe_inline"/>
+            </div>
+          </setting>
+
+          <!-- Thresholds -->
+          <setting string="Thresholds">
+            <div class="oe_row mt8">
+              <label for="risk_low_threshold" class="o_light_label me-2"/>
+              <field name="risk_low_threshold" class="oe_inline"/>
+            </div>
+            <div class="oe_row mt8">
+              <label for="risk_high_threshold" class="o_light_label me-2"/>
+              <field name="risk_high_threshold" class="oe_inline"/>
+            </div>
+          </setting>
+
+          <!-- Weights -->
+          <setting string="Weights">
+            <div class="oe_row mt8">
+              <label for="risk_weight_credit" class="o_light_label me-2"/>
+              <field name="risk_weight_credit" class="oe_inline"/>
+            </div>
+            <div class="oe_row mt8">
+              <label for="risk_weight_overdue" class="o_light_label me-2"/>
+              <field name="risk_weight_overdue" class="oe_inline"/>
+            </div>
+            <div class="oe_row mt8">
+              <label for="risk_weight_activity" class="o_light_label me-2"/>
+              <field name="risk_weight_activity" class="oe_inline"/>
+            </div>
+            <div class="oe_row mt8">
+              <label for="risk_target_orders_in_window" class="o_light_label me-2"/>
+              <field name="risk_target_orders_in_window" class="oe_inline"/>
+            </div>
+          </setting>
+
+          <!-- Toggles -->
+          <setting string="Behavior on Sales">
+            <div class="oe_row mt8">
+              <label for="risk_show_warning_on_quote" class="o_light_label me-2"/>
+              <field name="risk_show_warning_on_quote" class="oe_inline"/>
+            </div>
+            <div class="oe_row mt8">
+              <label for="risk_block_sale_on_high" class="o_light_label me-2"/>
+              <field name="risk_block_sale_on_high" class="oe_inline"/>
+            </div>
+          </setting>
+
+        </block>
+      </xpath>
+    </field>
+  </record>
+</odoo>

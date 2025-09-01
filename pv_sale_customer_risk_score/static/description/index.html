@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PV: Customer Risk Score for Sales — Documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --fg:#1d2733; --muted:#6b7280; --bg:#fff; --shade:#f6f7f9;
+      --primary:#4f7cf5; --border:#e5e7eb;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.55 var(--sans);color:var(--fg);background:var(--bg)}
+    .wrap{max-width:1050px;margin:0 auto;padding:28px 20px 64px}
+    h1{font-size:28px;line-height:1.2;margin:0 0 8px}
+    h2{font-size:22px;margin:28px 0 10px}
+    h3{font-size:18px;margin:20px 0 8px}
+    p{margin:8px 0}
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code,kbd{font-family:var(--mono);background:var(--shade);padding:2px 6px;border-radius:6px;font-size:90%}
+    .lead{color:var(--muted)}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;margin:16px 0}
+    .hr{height:1px;background:var(--border);margin:22px 0}
+    ul,ol{margin:8px 0 8px 22px}
+    .toc{padding:12px 14px;background:var(--shade);border:1px solid var(--border);border-radius:12px}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin:12px 0;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    th,td{padding:10px 12px;vertical-align:top;border-bottom:1px solid var(--border)}
+    th{background:var(--shade);text-align:left}
+    tr:last-child td{border-bottom:none}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);color:var(--muted)}
+    .note{background:var(--shade);border-left:4px solid var(--primary);padding:10px 12px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>PV: Customer Risk Score for Sales</h1>
+      <div class="lead">Customer risk KPIs on partners + a <strong>Debtors</strong> dashboard (list / pivot / graph) for grouping, sorting and quick analysis.</div>
+      <div style="margin-top:6px">
+        <span class="badge">Module: <code>pv_sale_customer_risk_score</code></span>
+        <span class="badge">Odoo 18</span>
+        <span class="badge">LGPL-3</span>
+      </div>
+    </header>
+
+    <div class="hr"></div>
+
+    <!-- 1) TABLE OF CONTENTS -->
+    <section class="toc">
+      <strong>Table of contents</strong>
+      <ol>
+        <li><a href="#summary">Summary (business view &amp; use-cases)</a></li>
+        <li><a href="#setup">Setup guide for beginners</a></li>
+        <li><a href="#fields">Field explanations (table)</a></li>
+        <li><a href="#technical">Technical overview</a></li>
+        <li><a href="#thresholds">Setting Low &amp; High thresholds</a></li>
+      </ol>
+    </section>
+
+    <!-- 2) SUMMARY -->
+    <section id="summary" class="card">
+      <h2>Summary (business view &amp; use-cases)</h2>
+      <p>
+        The module adds an at-a-glance <strong>credit risk profile</strong> for each customer and a consolidated
+        <strong>Debtors</strong> view for finance and sales teams. It highlights:
+        Credit Utilization %, Overdue Ratio, recent order activity, and a weighted Risk Score with a Level
+        (Low / Medium / High). Sales can be warned or blocked for high-risk customers.
+      </p>
+      <h3>Typical use-cases</h3>
+      <ul>
+        <li><strong>Collections:</strong> Sort customers by <em>Overdue Ratio</em> to focus dunning efforts.</li>
+        <li><strong>Sales control:</strong> Warn on quotation or block SO confirmation for <em>High</em> risk.</li>
+        <li><strong>Credit control:</strong> Monitor <em>Credit Utilization %</em> vs <em>Credit Limit</em>.</li>
+        <li><strong>Account review:</strong> Use Pivot to group by <em>Risk Level</em> and drill down by company or salesperson.</li>
+      </ul>
+      <h3>Where to work</h3>
+      <ul>
+        <li><strong>Partner KPIs:</strong> open a customer → <em>Risk</em> tab.</li>
+        <li><strong>Debtors dashboard:</strong> <em>Invoicing → Debtors</em> (list / pivot / graph).</li>
+        <li><strong>Configuration:</strong> <em>Settings → General Settings → Sales → Customer Risk Score</em>.</li>
+      </ul>
+    </section>
+
+    <!-- 3) SETUP FOR BEGINNERS -->
+    <section id="setup" class="card">
+      <h2>Setup guide for beginners</h2>
+      <ol>
+        <li><strong>Install</strong> the module. Ensure your user can access the <em>Invoicing</em> app.</li>
+        <li><strong>Configure</strong> (company-specific):
+          <ul>
+            <li>Go to <em>Settings → General Settings → Sales → Customer Risk Score</em>.</li>
+            <li>Set <em>Activity Window (Days)</em> (e.g., <code>120</code>).</li>
+            <li>Set weights (starting suggestion: Utilization <code>40</code>, Overdue <code>50</code>, Inactivity <code>10</code>).</li>
+            <li>Set <em>Low / High</em> thresholds (start with Low <code>30</code>, High <code>70</code>).</li>
+            <li>Optional: enable <em>Warn on quotation</em> / <em>Block confirmation if High</em>.</li>
+          </ul>
+        </li>
+        <li><strong>Prime the data</strong>:
+          <ul>
+            <li>Open any partner → <em>Risk</em> tab → click <strong>Recompute Risk</strong> to preview KPIs, or</li>
+            <li>Run scheduled action <em>PV: Recompute Customer Risk Scores</em> (Settings → Technical → Automation → Scheduled Actions).</li>
+          </ul>
+        </li>
+        <li><strong>Use the Debtors dashboard</strong>:
+          <ul>
+            <li>Navigate to <em>Invoicing → Debtors</em>.</li>
+            <li>Hide/show columns from the column dropdown (per user).</li>
+            <li>Switch to Pivot to group by Risk Level, Company, etc.; Graph for quick trends.</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="note"><strong>Note:</strong> Configuration and results are company-aware. Switch your active company before editing settings.</p>
+    </section>
+
+    <!-- 4) FIELD EXPLANATIONS TABLE -->
+    <section id="fields" class="card">
+      <h2>Field explanations</h2>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Location</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Activity Window (Days)</td>
+            <td>Settings → Sales → Customer Risk Score</td>
+            <td>How many days back to count confirmed/done sales orders for “Orders in Window”. Also shown on Partner → Risk tab.</td>
+          </tr>
+          <tr>
+            <td>Weight: Credit Utilization</td>
+            <td>Settings → Sales → Customer Risk Score → Weights</td>
+            <td>Contribution of Credit Utilization % to the Risk Score.</td>
+          </tr>
+          <tr>
+            <td>Weight: Overdue Ratio</td>
+            <td>Settings → Sales → Customer Risk Score → Weights</td>
+            <td>Contribution of Overdue Ratio to the Risk Score.</td>
+          </tr>
+          <tr>
+            <td>Weight: Inactivity</td>
+            <td>Settings → Sales → Customer Risk Score → Weights</td>
+            <td>Penalty applied if “Orders in Window” is below the configured target.</td>
+          </tr>
+          <tr>
+            <td>Target orders in window</td>
+            <td>Settings → Sales → Customer Risk Score → Weights</td>
+            <td>Sales activity target; falling short increases risk via Inactivity weight.</td>
+          </tr>
+          <tr>
+            <td>Low threshold (score ≥)</td>
+            <td>Settings → Sales → Customer Risk Score → Thresholds</td>
+            <td>Minimum score for <em>Medium</em> risk when below the High threshold.</td>
+          </tr>
+          <tr>
+            <td>High threshold (score ≥)</td>
+            <td>Settings → Sales → Customer Risk Score → Thresholds</td>
+            <td>Minimum score for <em>High</em> risk.</td>
+          </tr>
+          <tr>
+            <td>Warn on Quotation if Risk</td>
+            <td>Settings → Sales → Customer Risk Score → Behavior</td>
+            <td>Shows a warning on quotations for Medium/High risk customers.</td>
+          </tr>
+          <tr>
+            <td>Block confirmation if High</td>
+            <td>Settings → Sales → Customer Risk Score → Behavior</td>
+            <td>Prevents confirming a Sales Order if the customer risk level is High.</td>
+          </tr>
+          <tr>
+            <td>Credit Utilization %</td>
+            <td>Partner → Risk</td>
+            <td><code>Outstanding / Credit Limit × 100</code>. Outstanding = open AR residuals (posted customer invoices + credit notes).</td>
+          </tr>
+          <tr>
+            <td>Overdue Ratio</td>
+            <td>Partner → Risk / Debtors</td>
+            <td><code>(Overdue Invoices − Open Credit Notes) / Total Open Invoices</code>. Denominator includes <em>invoices only</em>; credits are subtracted in the numerator.</td>
+          </tr>
+          <tr>
+            <td>Orders in Window</td>
+            <td>Partner → Risk / Debtors</td>
+            <td>Count of confirmed/done sales orders within the Activity Window.</td>
+          </tr>
+          <tr>
+            <td>Risk Score / Risk Level</td>
+            <td>Partner → Risk / Debtors</td>
+            <td>Weighted score based on KPIs; Level derived from Low/High thresholds.</td>
+          </tr>
+          <tr>
+            <td>Last Updated</td>
+            <td>Debtors list</td>
+            <td>Timestamp when the snapshot row was last refreshed by cron.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5) TECHNICAL OVERVIEW -->
+    <section id="technical" class="card">
+      <h2>Technical overview</h2>
+      <h3>Main pieces</h3>
+      <ul>
+        <li><strong>Partner KPIs (computed, not stored):</strong> on <code>res.partner</code> “Risk” tab.</li>
+        <li><strong>Snapshot model:</strong> <code>pv.debtor.kpi</code> stores aggregates for the Debtors dashboard.</li>
+        <li><strong>Views:</strong> list (columns optional per user), pivot (Outstanding, Credit Open, Overdue, Risk Score), graph.</li>
+        <li><strong>Cron jobs:</strong>
+          <ul>
+            <li><em>PV: Recompute Customer Risk Scores</em> — recomputes partner snapshot fields.</li>
+            <li><em>PV: Refresh Debtor KPI</em> — rebuilds <code>pv.debtor.kpi</code> rows.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Key formulas</h3>
+      <ul>
+        <li><strong>Outstanding:</strong> sum of <code>amount_residual</code> on posted
+          <code>out_invoice</code> and <code>out_refund</code> for the commercial partner & company.</li>
+        <li><strong>Overdue invoices:</strong> same but due date &lt; today (invoices only).</li>
+        <li><strong>Open credit notes:</strong> residuals on posted <code>out_refund</code> (treated as positive when subtracting).</li>
+        <li><strong>Overdue Ratio:</strong> <code>(Overdue Invoices − Open Credit Notes) / Total Open Invoices</code>
+          (denominator excludes credit notes; ratio is 0 when denominator is 0).</li>
+        <li><strong>Credit Utilization %:</strong> <code>Outstanding / Credit Limit × 100</code>.</li>
+      </ul>
+
+      <h3>Risk score</h3>
+      <p>
+        Weighted sum of (Credit Util %, Overdue Ratio, Inactivity penalty vs “Target orders in window”).
+        Level mapping: if Score ≥ High → High; else if Score ≥ Low → Medium; else Low.
+      </p>
+
+      <h3>Access & Menus</h3>
+      <ul>
+        <li>Users need Invoicing access and read on <code>res.partner</code> to see Debtors.</li>
+        <li>Menu: <em>Invoicing → Debtors</em>. Settings panel: <em>Settings → General Settings → Sales → Customer Risk Score</em>.</li>
+      </ul>
+    </section>
+
+    <!-- 6) THRESHOLD SETUP -->
+    <section id="thresholds" class="card">
+      <h2>Setting Low &amp; High thresholds</h2>
+
+      <h3>Where to set them</h3>
+      <ol>
+        <li>Open <strong>Settings</strong> (with Settings rights).</li>
+        <li>Navigate to <strong>General Settings → Sales → Customer Risk Score</strong>.</li>
+        <li>Fill:
+          <ul>
+            <li><strong>Low threshold (score ≥)</strong></li>
+            <li><strong>High threshold (score ≥)</strong></li>
+          </ul>
+        </li>
+        <li>Click <strong>Save</strong>.</li>
+      </ol>
+      <p class="note"><strong>Company-specific:</strong> switch your active company before editing.</p>
+
+      <h3>How they work</h3>
+      <ul>
+        <li>If <strong>Score ≥ High</strong> → Level = <strong>High</strong>.</li>
+        <li>Else if <strong>Score ≥ Low</strong> → Level = <strong>Medium</strong>.</li>
+        <li>Else → <strong>Low</strong>.</li>
+      </ul>
+
+      <h3>After changing them</h3>
+      <ul>
+        <li>Update immediately by either:
+          <ul>
+            <li>Partner → <em>Risk</em> → <strong>Recompute Risk</strong>, or</li>
+            <li>Run <em>PV: Recompute Customer Risk Scores</em> cron (Settings → Technical → Scheduled Actions).</li>
+          </ul>
+        </li>
+        <li>Refresh Debtors via <em>PV: Refresh Debtor KPI</em> if you want the list to update right away.</li>
+      </ul>
+
+      <h3>Quick calibration tips</h3>
+      <ul>
+        <li>Start with <strong>Low = 30</strong>, <strong>High = 70</strong>.</li>
+        <li>In <em>Invoicing → Debtors</em>, sort by <strong>Risk Score</strong>:
+          <ul>
+            <li>Set <em>High</em> where the “risky few” begin (top ~10–20%).</li>
+            <li>Set <em>Low</em> where the healthy majority tails off (~30–40).</li>
+          </ul>
+        </li>
+        <li>Review after a week; tweak to match your tolerance for warnings/blocks.</li>
+      </ul>
+    </section>
+
+  </div>
+</body>
+</html>

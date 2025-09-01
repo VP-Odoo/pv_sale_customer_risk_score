@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+pv_access_res_partner_risk_user,res.partner.risk.user,base.model_res_partner,base.group_user,1,0,0,0
+pv_access_pv_debtor_kpi_user,pv.debtor.kpi.user,model_pv_debtor_kpi,base.group_user,1,0,0,0
